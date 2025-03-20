@@ -20,7 +20,8 @@ void addRandomTile(vector < vector < int > >& board){
         int index = rand() % emptyTile.size();
         int value = (rand() % 2 + 1) * 2;
 
-        auto [x, y] = emptyTile[index];
+        int x = emptyTile[index].first;
+        int y = emptyTile[index].second;
         board[x][y] = value;
     }
 }
