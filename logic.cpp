@@ -1,4 +1,7 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<vector>
+#include<cstdlib>
+#include<ctime>
 using namespace std;
 
 const int SIZE = 4;
