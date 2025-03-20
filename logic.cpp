@@ -14,20 +14,20 @@ void clearBoard(vector<vector<int>>& board) {
 
 void addRandomTile(vector<vector<int>>& board) {
     vector<pair<int, int>> emptyTile;
-
     for (int i = 0; i < SIZE; ++i)
         for (int j = 0; j < SIZE; ++j)
             if (board[i][j] == 0) emptyTile.push_back({i, j});
 
-    if (!emptyTile.empty()) {
-        int index = rand() % emptyTile.size();
-        int value = (rand() % 2 + 1) * 2;
+    if (emptyTile.empty()) return; // 예외 처리: 빈 공간이 없으면 실행하지 않음
 
-        int x = emptyTile[index].first;
-        int y = emptyTile[index].second;
-        board[x][y] = value;
-    }
+    int index = rand() % emptyTile.size();
+    int value = (rand() % 2 + 1) * 2;
+
+    int x = emptyTile[index].first;
+    int y = emptyTile[index].second;
+    board[x][y] = value;
 }
+
 
 void moveLeft(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
@@ -39,7 +39,9 @@ void moveLeft(vector<vector<int>>& board) {
             if (row[j] == row[j + 1]) {
                 row[j] *= 2;
                 row.erase(row.begin() + j + 1);
+                row.push_back(0);
             }
+            j++;
         }
 
         while (row.size() < SIZE) row.push_back(0);
@@ -58,7 +60,9 @@ void moveRight(vector<vector<int>>& board) {
             if (row[j] == row[j + 1]) {
                 row[j] *= 2;
                 row.erase(row.begin() + j + 1);
+                row.push_back(0);
             }
+            j++;
         }
 
         while (row.size() < SIZE) row.push_back(0);
@@ -77,7 +81,9 @@ void moveUp(vector<vector<int>>& board) {
             if (col[j] == col[j + 1]) {
                 col[j] *= 2;
                 col.erase(col.begin() + j + 1);
+                col.push_back(0);
             }
+            j++;
         }
 
         while (col.size() < SIZE) col.push_back(0);
@@ -96,7 +102,9 @@ void moveDown(vector<vector<int>>& board) {
             if (col[j] == col[j + 1]) {
                 col[j] *= 2;
                 col.erase(col.begin() + j + 1);
+                col.push_back(0);
             }
+            j++;
         }
 
         while (col.size() < SIZE) col.push_back(0);
@@ -150,6 +158,7 @@ int main() {
 
     while (true) {
         printBoard(board);
+
         if (isgameOver(board)) break;
 
         char direct;
@@ -160,7 +169,7 @@ int main() {
             case 'a': moveLeft(board); break;
             case 's': moveDown(board); break;
             case 'd': moveRight(board); break;
-            default: cout << "Press another key!" << endl;
+            default: cout << "Press another key!" << endl; continue;
         }
 
         addRandomTile(board);
