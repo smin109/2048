@@ -181,21 +181,21 @@ int main() {
         char direct; cin >> direct;
 
         switch (direct) {
-        case 'w':
-            moveUp(board);
-            break;
-        case 'a':
-            moveLeft(board);
-            break;
-        case 's':
-            moveDown(board);
-            break;
-        case 'd':
-            moveRight(board);
-            break;
+            case 'w':
+                moveUp(board);
+                break;
+            case 'a':
+                moveLeft(board);
+                break;
+            case 's':
+                moveDown(board);
+                break;
+            case 'd':
+                moveRight(board);
+                break;
 
-        default:
-            cout << "Press another key!" << endl;
+            default:
+                cout << "Press another key!" << endl;
         }
 
         addRandomTile(board);  // 이동 후 랜덤 타일 추가
