@@ -6,20 +6,20 @@ using namespace std;
 
 const int SIZE = 4;
 
-void clearBoard(vector < vector < int > >& board) {
+void clearBoard(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j) board[i][j] = 0;
+        for (int j = 0; j < SIZE; ++j)
+            board[i][j] = 0;
 }
 
-void addRandomTile(vector < vector < int > >& board) {
-    vector < pair < int, int > > emptyTile;
+void addRandomTile(vector<vector<int>>& board) {
+    vector<pair<int, int>> emptyTile;
 
     for (int i = 0; i < SIZE; ++i)
         for (int j = 0; j < SIZE; ++j)
             if (board[i][j] == 0) emptyTile.push_back({i, j});
 
     if (!emptyTile.empty()) {
-        srand(time(0));
         int index = rand() % emptyTile.size();
         int value = (rand() % 2 + 1) * 2;
 
@@ -29,111 +29,83 @@ void addRandomTile(vector < vector < int > >& board) {
     }
 }
 
-void moveLeft(vector < vector < int > >& board) {
+void moveLeft(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
-        vector < int > row;
+        vector<int> row;
         for (int j = 0; j < SIZE; ++j)
             if (board[i][j] != 0) row.push_back(board[i][j]);
 
-        // 합치기
         for (int j = 0; j < row.size() - 1; ++j) {
             if (row[j] == row[j + 1]) {
                 row[j] *= 2;
                 row.erase(row.begin() + j + 1);
-                row.push_back(0);
             }
         }
 
-        while (row.size() < SIZE) {
-            row.push_back(0);
-        }
+        while (row.size() < SIZE) row.push_back(0);
 
-        // 결과를 board에 반영
-        for (int j = 0; j < SIZE; ++j) {
-            board[i][j] = row[j];
-        }
+        for (int j = 0; j < SIZE; ++j) board[i][j] = row[j];
     }
 }
 
-void moveRight(vector < vector < int > >& board) {
+void moveRight(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
-        vector < int > row;
+        vector<int> row;
         for (int j = SIZE - 1; j >= 0; --j)
             if (board[i][j] != 0) row.push_back(board[i][j]);
 
-        // 합치기
         for (int j = 0; j < row.size() - 1; ++j) {
             if (row[j] == row[j + 1]) {
                 row[j] *= 2;
                 row.erase(row.begin() + j + 1);
-                row.push_back(0);
             }
         }
 
-        while (row.size() < SIZE) {
-            row.push_back(0);
-        }
+        while (row.size() < SIZE) row.push_back(0);
 
-        // 결과를 board에 반영
-        for (int j = 0; j < SIZE; ++j) {
-            board[i][SIZE - 1 - j] = row[j];
-        }
+        for (int j = 0; j < SIZE; ++j) board[i][SIZE - 1 - j] = row[j];
     }
 }
 
-void moveUp(vector < vector < int > >& board) {
+void moveUp(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
-        vector < int > col;
+        vector<int> col;
         for (int j = 0; j < SIZE; ++j)
             if (board[j][i] != 0) col.push_back(board[j][i]);
 
-        // 합치기
         for (int j = 0; j < col.size() - 1; ++j) {
             if (col[j] == col[j + 1]) {
                 col[j] *= 2;
                 col.erase(col.begin() + j + 1);
-                col.push_back(0);
             }
         }
 
-        while (col.size() < SIZE) {
-            col.push_back(0);
-        }
+        while (col.size() < SIZE) col.push_back(0);
 
-        // 결과를 board에 반영
-        for (int j = 0; j < SIZE; ++j) {
-            board[j][i] = col[j];
-        }
+        for (int j = 0; j < SIZE; ++j) board[j][i] = col[j];
     }
 }
 
-void moveDown(vector < vector < int > >& board) {
+void moveDown(vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
-        vector < int > col;
+        vector<int> col;
         for (int j = SIZE - 1; j >= 0; --j)
             if (board[j][i] != 0) col.push_back(board[j][i]);
 
-        // 합치기
         for (int j = 0; j < col.size() - 1; ++j) {
             if (col[j] == col[j + 1]) {
                 col[j] *= 2;
                 col.erase(col.begin() + j + 1);
-                col.push_back(0);
             }
         }
 
-        while (col.size() < SIZE) {
-            col.push_back(0);
-        }
+        while (col.size() < SIZE) col.push_back(0);
 
-        // 결과를 board에 반영
-        for (int j = SIZE - 1; j >= 0; --j) {
-            board[j][i] = col[SIZE - 1 - j];
-        }
+        for (int j = SIZE - 1; j >= 0; --j) board[j][i] = col[SIZE - 1 - j];
     }
 }
 
-void printBoard(const vector < vector < int > >& board) {
+void printBoard(const vector<vector<int>>& board) {
     for (int i = 0; i < SIZE; ++i) {
         for (int j = 0; j < SIZE; ++j) {
             cout << board[i][j] << '\t';
@@ -142,41 +114,35 @@ void printBoard(const vector < vector < int > >& board) {
     }
 }
 
-bool isgameOver(const vector < vector < int > >& board) {
-    // 2048이 만들어지면 게임 종료
-    for (int i = 0; i < SIZE; ++i) {
-        for (int j = 0; j < SIZE; ++j) {
+bool isgameOver(const vector<vector<int>>& board) {
+    for (int i = 0; i < SIZE; ++i)
+        for (int j = 0; j < SIZE; ++j)
             if (board[i][j] == 2048) {
                 cout << "You got this!" << endl;
                 return true;
             }
-        }
-    }
 
-    // 빈 칸이 있으면 계속 진행 가능
-    for (int i = 0; i < SIZE; ++i) {
+    for (int i = 0; i < SIZE; ++i)
+        for (int j = 0; j < SIZE; ++j)
+            if (board[i][j] == 0) return false;
+
+    for (int i = 0; i < SIZE; ++i)
         for (int j = 0; j < SIZE; ++j) {
-            if (board[i][j] == 0) return false;  
+            if (i < SIZE - 1 && board[i][j] == board[i + 1][j]) return false;
+            if (j < SIZE - 1 && board[i][j] == board[i][j + 1]) return false;
         }
-    }
 
-    // 이동할 수 있는 경우가 있는지 확인
-    for (int i = 0; i < SIZE; ++i) {
-        for (int j = 0; j < SIZE; ++j) {
-            if (i < SIZE - 1 && board[i][j] == board[i + 1][j]) return false;  // 아래와 합칠 수 있으면 계속 진행 가능
-            if (j < SIZE - 1 && board[i][j] == board[i][j + 1]) return false;  // 오른쪽과 합칠 수 있으면 계속 진행 가능
-        }
-    }
-
-    // 빈 칸도 없고, 합칠 수도 없으면 게임 종료
     cout << "GAME OVER!" << endl;
     return true;
 }
 
 int main() {
-    ios::sync_with_stdio(false); cin.tie(nullptr); cout.tie(nullptr);
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-    vector < vector < int > > board(SIZE, vector < int >(SIZE));
+    srand(time(0)); // 프로그램 실행 시 한 번만 호출
+
+    vector<vector<int>> board(SIZE, vector<int>(SIZE));
 
     clearBoard(board);
     addRandomTile(board);
@@ -184,30 +150,20 @@ int main() {
 
     while (true) {
         printBoard(board);
-
         if (isgameOver(board)) break;
 
-        char direct; cin >> direct;
+        char direct;
+        cin >> direct;
 
         switch (direct) {
-            case 'w':
-                moveUp(board);
-                break;
-            case 'a':
-                moveLeft(board);
-                break;
-            case 's':
-                moveDown(board);
-                break;
-            case 'd':
-                moveRight(board);
-                break;
-
-            default:
-                cout << "Press another key!" << endl;
+            case 'w': moveUp(board); break;
+            case 'a': moveLeft(board); break;
+            case 's': moveDown(board); break;
+            case 'd': moveRight(board); break;
+            default: cout << "Press another key!" << endl;
         }
 
-        addRandomTile(board);  // 이동 후 랜덤 타일 추가
+        addRandomTile(board);
     }
 
     return 0;
