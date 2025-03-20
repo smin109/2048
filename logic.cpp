@@ -143,6 +143,7 @@ void printBoard(const vector < vector < int > >& board) {
 }
 
 bool isgameOver(const vector < vector < int > >& board) {
+    // 2048이 만들어지면 게임 종료
     for (int i = 0; i < SIZE; ++i) {
         for (int j = 0; j < SIZE; ++j) {
             if (board[i][j] == 2048) {
@@ -152,14 +153,22 @@ bool isgameOver(const vector < vector < int > >& board) {
         }
     }
 
+    // 빈 칸이 있으면 계속 진행 가능
     for (int i = 0; i < SIZE; ++i) {
         for (int j = 0; j < SIZE; ++j) {
-            if (board[i][j] == 0) return true;  // 빈 칸이 있으면 계속 진행 가능
-            if (i < SIZE - 1 && board[i][j] == board[i + 1][j]) return false;  // 아래와 합칠 수 있으면
-            if (j < SIZE - 1 && board[i][j] == board[i][j + 1]) return false;  // 오른쪽과 합칠 수 있으면
+            if (board[i][j] == 0) return false;  
         }
     }
 
+    // 이동할 수 있는 경우가 있는지 확인
+    for (int i = 0; i < SIZE; ++i) {
+        for (int j = 0; j < SIZE; ++j) {
+            if (i < SIZE - 1 && board[i][j] == board[i + 1][j]) return false;  // 아래와 합칠 수 있으면 계속 진행 가능
+            if (j < SIZE - 1 && board[i][j] == board[i][j + 1]) return false;  // 오른쪽과 합칠 수 있으면 계속 진행 가능
+        }
+    }
+
+    // 빈 칸도 없고, 합칠 수도 없으면 게임 종료
     cout << "GAME OVER!" << endl;
     return true;
 }
