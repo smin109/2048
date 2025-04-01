@@ -1,173 +1,193 @@
+#include <time.h>
 #include <iostream>
-#include <vector>
+#include <string>
+#include <iomanip>
 #include <cstdlib>
-#include <ctime>
+
+typedef unsigned int uint;
 using namespace std;
+enum movDir { UP, DOWN, LEFT, RIGHT };
 
-const int SIZE = 4;
+class tile
+{
+public:
+    tile() : val( 0 ), blocked( false ) {}
+    uint val;
+    bool blocked;
+};
 
-void clearBoard(vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j)
-            board[i][j] = 0;
-}
-
-void addRandomTile(vector<vector<int>>& board) {
-    vector<pair<int, int>> emptyTile;
-    for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j)
-            if (board[i][j] == 0) emptyTile.push_back({i, j});
-
-    if (emptyTile.empty()) return;
-
-    int index = rand() % emptyTile.size();
-    int value = (rand() % 2 + 1) * 2;
-    
-    int x = emptyTile[index].first;
-    int y = emptyTile[index].second;
-    board[x][y] = value;
-}
-
-void printBoard(const vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i) {
-        for (int j = 0; j < SIZE; ++j) {
-            cout << board[i][j] << "\t";
-        }
-        cout << endl;
+class g2048
+{
+public:
+    g2048() : done( false ), win( false ), moved( true ), score( 0 ) {}
+    void loop()
+    {
+	addTile(); 
+	while( true )
+	{
+	    if( moved ) addTile();
+	    drawBoard(); 
+	    if( done ) break;
+	    waitKey();
+	}
+	string s = "Game Over!";
+	if( win ) s = "You've made it!";
+	cout << s << endl << endl;
     }
-}
-
-void moveLeft(vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i) {
-        vector<int> row;
-        for (int j = 0; j < SIZE; ++j)
-            if (board[i][j] != 0) row.push_back(board[i][j]);
-
-        for (int j = 0; j < (int)row.size() - 1; j++) {
-            if (row[j] == row[j + 1]) {
-                row[j] *= 2;
-                row[j + 1] = 0;
-            }
-        }
-        
-        vector<int> newRow;
-        for (int num : row) if (num != 0) newRow.push_back(num);
-        while (newRow.size() < SIZE) newRow.push_back(0);
-        
-        board[i] = newRow;
+private:
+    void drawBoard()
+    {
+	system( "cls" );
+	cout << "SCORE: " << score << endl << endl;
+	for( int y = 0; y < 4; y++ )
+	{
+	    cout << "+------+------+------+------+" << endl << "| ";
+	    for( int x = 0; x < 4; x++ )
+	    {
+		if( !board[x][y].val ) cout << setw( 4 ) << " ";
+		else cout << setw( 4 ) << board[x][y].val;
+		cout << " | ";
+	    }
+	    cout << endl;
+	}
+	cout << "+------+------+------+------+" << endl << endl;
     }
-}
-
-void moveRight(vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i) {
-        vector<int> row;
-        for (int j = SIZE - 1; j >= 0; --j)
-            if (board[i][j] != 0) row.push_back(board[i][j]);
-
-        for (int j = 0; j < (int)row.size() - 1; j++) {
-            if (row[j] == row[j + 1]) {
-                row[j] *= 2;
-                row[j + 1] = 0;
-            }
-        }
-        
-        vector<int> newRow;
-        for (int num : row) if (num != 0) newRow.push_back(num);
-        while (newRow.size() < SIZE) newRow.push_back(0);
-        
-        for (int j = 0; j < SIZE; ++j) board[i][SIZE - 1 - j] = newRow[j];
+    void waitKey()
+    {
+	moved = false; char c; 
+	cout << "(W)Up (S)Down (A)Left (D)Right "; cin >> c; c &= 0x5F;
+	switch( c )
+	{
+	    case 'W': move( UP );break;
+	    case 'A': move( LEFT ); break;
+	    case 'S': move( DOWN ); break;
+	    case 'D': move( RIGHT );
+	}
+	for( int y = 0; y < 4; y++ )
+	    for( int x = 0; x < 4; x++ )
+		board[x][y].blocked = false;
     }
-}
+    void addTile()
+    {
+	for( int y = 0; y < 4; y++ )
+	    for( int x = 0; x < 4; x++ )
+		if( !board[x][y].val )
+		{
+		    uint a, b;
+		    do
+		    { a = rand() % 4; b = rand() % 4; }
+		    while( board[a][b].val );
 
-void moveUp(vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i) {
-        vector<int> col;
-        for (int j = 0; j < SIZE; ++j)
-            if (board[j][i] != 0) col.push_back(board[j][i]);
-
-        for (int j = 0; j < (int)col.size() - 1; j++) {
-            if (col[j] == col[j + 1]) {
-                col[j] *= 2;
-                col[j + 1] = 0;
-            }
-        }
-        
-        vector<int> newCol;
-        for (int num : col) if (num != 0) newCol.push_back(num);
-        while (newCol.size() < SIZE) newCol.push_back(0);
-        
-        for (int j = 0; j < SIZE; ++j) board[j][i] = newCol[j];
+		    int s = rand() % 100;
+		    if( s > 89 ) board[a][b].val = 4;
+		    else board[a][b].val = 2;
+		    if( canMove() ) return;
+		}
+	done = true;
     }
-}
+    bool canMove()
+    {
+	for( int y = 0; y < 4; y++ )
+	    for( int x = 0; x < 4; x++ )
+		if( !board[x][y].val ) return true;
 
-void moveDown(vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i) {
-        vector<int> col;
-        for (int j = SIZE - 1; j >= 0; --j)
-            if (board[j][i] != 0) col.push_back(board[j][i]);
-
-        for (int j = 0; j < (int)col.size() - 1; j++) {
-            if (col[j] == col[j + 1]) {
-                col[j] *= 2;
-                col[j + 1] = 0;
-            }
-        }
-        
-        vector<int> newCol;
-        for (int num : col) if (num != 0) newCol.push_back(num);
-        while (newCol.size() < SIZE) newCol.push_back(0);
-        
-        for (int j = 0; j < SIZE; ++j) board[SIZE - 1 - j][i] = newCol[j];
+	for( int y = 0; y < 4; y++ )
+	    for( int x = 0; x < 4; x++ )
+	    {
+		if( testAdd( x + 1, y, board[x][y].val ) ) return true;
+		if( testAdd( x - 1, y, board[x][y].val ) ) return true;
+		if( testAdd( x, y + 1, board[x][y].val ) ) return true;
+		if( testAdd( x, y - 1, board[x][y].val ) ) return true;
+	    }
+	return false;
     }
-}
-
-bool isGameOver(const vector<vector<int>>& board) {
-    for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j)
-            if (board[i][j] == 2048) {
-                cout << "You got this!\n";
-                return true;
-            }
-
-    for (int i = 0; i < SIZE; ++i)
-        for (int j = 0; j < SIZE; ++j)
-            if (board[i][j] == 0) return false;
-
-    for (int i = 0; i < SIZE - 1; ++i)
-        for (int j = 0; j < SIZE - 1; ++j) {
-            if (board[i][j] == board[i + 1][j] || board[i][j] == board[i][j + 1]) return false;
-        }
-
-    cout << "GAME OVER!\n";
-    return true;
-}
-
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    srand(time(0));
-    vector<vector<int>> board(SIZE, vector<int>(SIZE));
-    clearBoard(board);
-    addRandomTile(board);
-    addRandomTile(board);
-
-    while (true) {
-        printBoard(board);
-        if (isGameOver(board)) break;
-
-        char direct;
-        cin >> direct;
-        
-        switch (direct) {
-            case 'w': moveUp(board); break;
-            case 'a': moveLeft(board); break;
-            case 's': moveDown(board); break;
-            case 'd': moveRight(board); break;
-            default: cout << "Press another key!" << endl; continue;
-        }
-
-        addRandomTile(board);
+    bool testAdd( int x, int y, uint v )
+    {
+	if( x < 0 || x > 3 || y < 0 || y > 3 ) return false;
+	return board[x][y].val == v;
     }
-    return 0;
+    void moveVert( int x, int y, int d )
+    {
+	if( board[x][y + d].val && board[x][y + d].val == board[x][y].val && !board[x][y].blocked && !board[x][y + d].blocked  )
+	{
+	    board[x][y].val = 0;
+	    board[x][y + d].val *= 2;
+	    score += board[x][y + d].val;
+	    board[x][y + d].blocked = true;
+	    moved = true;
+	}
+	else if( !board[x][y + d].val && board[x][y].val )
+	{
+	    board[x][y + d].val = board[x][y].val;
+	    board[x][y].val = 0;
+	    moved = true;
+	}
+	if( d > 0 ) { if( y + d < 3 ) moveVert( x, y + d,  1 ); }
+	else        { if( y + d > 0 ) moveVert( x, y + d, -1 ); }
+    }
+    void moveHori( int x, int y, int d )
+    {
+	if( board[x + d][y].val && board[x + d][y].val == board[x][y].val && !board[x][y].blocked && !board[x + d][y].blocked  )
+	{
+	    board[x][y].val = 0;
+	    board[x + d][y].val *= 2;
+	    score += board[x + d][y].val;
+	    board[x + d][y].blocked = true;
+	    moved = true;
+	}
+	else if( !board[x + d][y].val && board[x][y].val )
+	{
+	    board[x + d][y].val = board[x][y].val;
+	    board[x][y].val = 0;
+	    moved = true;
+	}
+	if( d > 0 ) { if( x + d < 3 ) moveHori( x + d, y,  1 ); }
+	else        { if( x + d > 0 ) moveHori( x + d, y, -1 ); }
+    }
+    void move( movDir d )
+    {
+	switch( d )
+	{
+	    case UP:
+	    	for( int x = 0; x < 4; x++ )
+		{
+		    int y = 1;
+		    while( y < 4 )
+		    { if( board[x][y].val ) moveVert( x, y, -1 ); y++;}
+		}
+		break;
+	    case DOWN:
+		for( int x = 0; x < 4; x++ )
+		{
+		    int y = 2;
+		    while( y >= 0 )
+		    { if( board[x][y].val ) moveVert( x, y, 1 ); y--;}
+		}
+		break;
+	    case LEFT:
+		for( int y = 0; y < 4; y++ )
+		{
+		    int x = 1;
+		    while( x < 4 )
+		    { if( board[x][y].val ) moveHori( x, y, -1 ); x++;}
+		}
+		break;
+	    case RIGHT:
+		for( int y = 0; y < 4; y++ )
+		{
+		    int x = 2;
+		    while( x >= 0 )
+		    { if( board[x][y].val ) moveHori( x, y, 1 ); x--;}
+		}
+	}
+    }
+    tile board[4][4];
+    bool win, done, moved;
+    uint score;
+};
+int main( int argc, char* argv[] )
+{
+    srand( static_cast<uint>( time( NULL ) ) );
+    g2048 g; g.loop();
+    return system( "pause" );
 }
