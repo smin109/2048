@@ -37,7 +37,7 @@ public:
 private:
     void drawBoard()
     {
-	system( "cls" );
+    cout << "\033[2J\033[H";
 	cout << "SCORE: " << score << endl << endl;
 	for( int y = 0; y < 4; y++ )
 	{
